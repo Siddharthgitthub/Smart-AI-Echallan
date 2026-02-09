@@ -1,9 +1,13 @@
 import mysql.connector
 
 def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
+    conn = mysql.connector.connect(
+        host="${{RAILWAY_PRIVATE_DOMAIN}}",
         user="root",
-        password="Siddharth@10",
-        database="smart_echallan"
+        password="JnwFbtCIsGEeRRHVntGuuArwCeqQzIJI",
+        database="railway",
+        port=3306
     )
+    return conn
+
+
