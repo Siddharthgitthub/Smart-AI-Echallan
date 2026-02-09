@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Challans</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            background:#f4f6f9;
+            padding:20px;
+        }
+
+        h2{
+            text-align:center;
+        }
+
+        table{
+            width:100%;
+            border-collapse: collapse;
+            background:white;
+            box-shadow:0px 0px 10px rgba(0,0,0,0.2);
+        }
+
+        th, td{
+            padding:12px;
+            text-align:center;
+            border-bottom:1px solid #ddd;
+        }
+
+        th{
+            background:#1e3d59;
+            color:white;
+        }
+
+        tr:hover{
+            background:#f1f1f1;
+        }
+
+        .btn{
+            padding:6px 12px;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        .pdf{
+            background:#007bff;
+            color:white;
+        }
+
+        .pay{
+            background:#28a745;
+            color:white;
+        }
+
+        .paid{
+            color:green;
+            font-weight:bold;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:20px;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+        .back{
+            background:black;
+            color:white;
+            padding:8px 15px;
+            border-radius:6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <h2>🚦 All Generated Challans</h2>
+    <a href="/dashboard" class="back">⬅ Back to Dashboard</a>
+</div>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Vehicle</th>
+    <th>Owner</th>
+    <th>Violation</th>
+    <th>Fine (₹)</th>
+    <th>Status</th>
+    <th>Date</th>
+    <th>PDF</th>
+    <th>Payment</th>
+</tr>
+
+{% for row in data %}
+<tr>
+    <td>{{row[0]}}</td>
+    <td>{{row[1]}}</td>
+    <td>{{row[2]}}</td>
+    <td>{{row[3]}}</td>
+    <td>{{row[4]}}</td>
+    <td>
+        {% if row[6]=='Paid' %}
+            <span class="paid">Paid</span>
+        {% else %}
+            Unpaid
+        {% endif %}
+    </td>
+    <td>{{row[5]}}</td>
+
+    <td>
+        <a href="/download/{{row[0]}}">
+            <button class="btn pdf">Download</button>
+        </a>
+    </td>
+
+    <td>
+        {% if row[6]=='Unpaid' %}
+        <a href="/mark_paid/{{row[0]}}">
+        <button style="background:green;color:white;padding:6px 10px;border:none;border-radius:6px;">
+        Mark Paid
+        </button>
+        </a>
+        {% else %}
+        <span style="color:lime;font-weight:bold;">Paid</span>
+        {% endif %}
+    </td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

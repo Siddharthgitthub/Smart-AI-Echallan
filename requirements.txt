@@ -1,0 +1,8 @@
+flask
+mysql-connector-python
+fpdf
+opencv-python
+easyocr
+numpy
+pillow
+gunicorn

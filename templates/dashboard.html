@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart AI E-Challan System</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: 'Segoe UI', sans-serif;
+}
+
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+min-height:100vh;
+padding:30px;
+}
+
+/* TOP BAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.logout{
+background:red;
+padding:8px 15px;
+border-radius:8px;
+color:white;
+text-decoration:none;
+}
+
+/* CARD STATS */
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.3);
+text-align:center;
+}
+
+.card h2{
+font-size:32px;
+margin-top:10px;
+}
+
+/* MAIN GRID */
+.main{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+}
+
+@media(max-width:900px){
+.main{
+grid-template-columns:1fr;
+}
+}
+
+/* FORM */
+.form-box{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.3);
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-top:8px;
+margin-bottom:18px;
+border:none;
+border-radius:8px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:14px;
+background:#00c6ff;
+border:none;
+color:white;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#0072ff;
+}
+
+.chart-box{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+padding:25px;
+border-radius:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.3);
+}
+
+.view-btn{
+display:inline-block;
+margin-top:20px;
+padding:12px 20px;
+background:black;
+color:white;
+border-radius:10px;
+text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+<h1>🚦 Smart AI E-Challan Admin</h1>
+<a href="/logout" class="logout">Logout</a>
+</div>
+
+<!-- STAT CARDS -->
+<div class="cards">
+<div class="card">
+<h4>Total Challans</h4>
+<h2>{{total}}</h2>
+</div>
+
+<div class="card">
+<h4>Total Fine</h4>
+<h2>₹{{total_fine}}</h2>
+</div>
+
+<div class="card">
+<h4>Paid</h4>
+<h2>{{paid}}</h2>
+</div>
+
+<div class="card">
+<h4>Unpaid</h4>
+<h2>{{unpaid}}</h2>
+</div>
+</div>
+
+<div class="main">
+
+<!-- LEFT FORM -->
+<div class="form-box">
+<h2>Generate Challan</h2>
+
+<form action="/generate" method="post">
+
+Vehicle Number
+<input type="text" name="vehicle" id="vehicle" required>
+Upload Vehicle Image (AI detection)
+<input type="file" id="imgUpload" accept="image/*">
+<button type="button" onclick="uploadImage()">Detect Number</button>
+
+Owner Name
+<input type="text" name="owner" required>
+
+Vehicle Type
+<select name="vehicle_type" required>
+<option>2 Wheeler</option>
+<option>4 Wheeler</option>
+<option>Truck</option>
+<option>Bus</option>
+</select>
+
+Violation
+<select name="violation" id="violation" onchange="setFine()" required>
+<option value="">Select Violation</option>
+<option value="No Helmet">No Helmet</option>
+<option value="No Seatbelt">No Seatbelt</option>
+<option value="Triple Riding">Triple Riding</option>
+<option value="Signal Jump">Signal Jump</option>
+<option value="Overspeeding">Overspeeding</option>
+<option value="Drunk Driving">Drunk Driving</option>
+<option value="Wrong Parking">Wrong Parking</option>
+<option value="Without License">Without License</option>
+<option value="Pollution Expired">Pollution Expired</option>
+<option value="Others">Others</option>
+</select>
+
+<div id="otherBox" style="display:none;">
+Other Reason
+<input type="text" name="other_reason">
+
+Fine
+<input type="number" name="other_fine">
+</div>
+
+Fine Amount
+<input type="number" id="fine" name="fine" readonly required>
+
+<button type="submit">Generate Challan</button>
+</form>
+
+<a href="/view_all" class="view-btn">📄 View All Challans</a>
+</div>
+
+<!-- RIGHT CHART -->
+<div class="chart-box">
+<h2>Analytics</h2>
+<canvas id="myChart"></canvas>
+</div>
+
+</div>
+
+<script>
+function setFine(){
+let v=document.getElementById("violation").value;
+let fine=document.getElementById("fine");
+let box=document.getElementById("otherBox");
+box.style.display="none";
+
+if(v=="No Helmet") fine.value=1000;
+else if(v=="No Seatbelt") fine.value=1000;
+else if(v=="Triple Riding") fine.value=1000;
+else if(v=="Signal Jump") fine.value=5000;
+else if(v=="Overspeeding") fine.value=2000;
+else if(v=="Drunk Driving") fine.value=10000;
+else if(v=="Wrong Parking") fine.value=500;
+else if(v=="Without License") fine.value=5000;
+else if(v=="Pollution Expired") fine.value=1000;
+else if(v=="Others"){
+fine.value="";
+box.style.display="block";
+}
+}
+
+const ctx=document.getElementById('myChart');
+new Chart(ctx,{
+type:'doughnut',
+data:{
+labels:['Paid','Unpaid'],
+datasets:[{
+data:[{{paid}},{{unpaid}}],
+}]
+}
+});
+function uploadImage(){
+let file=document.getElementById("imgUpload").files[0];
+
+if(!file){
+alert("Select image first");
+return;
+}
+
+let formData=new FormData();
+formData.append("image",file);
+
+fetch("/detect_number",{
+method:"POST",
+body:formData
+})
+.then(response=>response.json())
+.then(data=>{
+console.log("AI RESPONSE:",data);
+
+if(data.number && data.number.trim()!==""){
+document.getElementById("vehicle").value=data.number;
+alert("Detected Number: "+data.number);
+}else{
+alert("Number detected but empty. Try clearer image.");
+}
+})
+.catch(err=>{
+console.log(err);
+alert("Detection error");
+});
+
+}
+
+</script>
+
+</body>
+</html>
