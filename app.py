@@ -19,7 +19,7 @@ def login():
 
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT * FROM admin WHERE username=%s AND password=%s",(username,password))
+        cur.execute("SELECT * FROM users WHERE username=? AND password=?",(username,password))
         user = cur.fetchone()
         conn.close()
 
